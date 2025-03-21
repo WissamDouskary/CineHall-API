@@ -26,4 +26,6 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     //films
     Route::post('/film', [FilmController::class, 'store']);
+    Route::put('film/{id}', [FilmController::class, 'update']);
+    Route::delete('film/{id}', [FilmController::class, 'destroy']);
 });
