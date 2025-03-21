@@ -7,6 +7,10 @@ use App\Repositories\contract\FilmRepositoryInterface;
 
 class FilmRepository implements FilmRepositoryInterface
 {
+
+    public function getall() : Film{
+        return Film::all();
+    }
     public function store(array $data) : Film {
         return Film::create($data);
     }
