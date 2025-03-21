@@ -7,10 +7,9 @@ use App\Repositories\contract\UserRepositoryInterface;
 
 class UserService
 {
-    public function __construct(
-        protected UserRepositoryInterface $userRepository
-    ){
-
+    protected $userRepository;
+    public function __construct(UserRepositoryInterface $userRepository ){
+        $this->userRepository = $userRepository;
     }
 
     public function create(array $data): User
