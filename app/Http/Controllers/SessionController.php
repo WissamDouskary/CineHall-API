@@ -17,6 +17,10 @@ class SessionController extends Controller
         $this->filmRepository = $filmRepository;
     }
 
+    public function index(){
+        return $this->sessionRepository->getall();
+    }
+
     public function store(Request $request){
         $fields = $request->validate([
             'start_date' => 'required|date_format:Y-m-d H:i:s',
@@ -57,5 +61,23 @@ class SessionController extends Controller
             'message' => 'session created successfully!',
             'session' => $fields
         ]);
+    }
+    public function getByType(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|string',
+        ]);
+
+        if(count($this->sessionRepository->getByType($request->type)) > 0) {
+            $session = $this->sessionRepository->getByType($request->type);
+            return response()->json([
+                'message' => 'sessions found',
+                'session' => $session
+            ]);
+        }else{
+            return response()->json([
+                'message' => 'session not found with this type',
+            ]);
+        }
     }
 }
