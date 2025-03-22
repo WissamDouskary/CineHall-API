@@ -34,4 +34,5 @@ Route::group(['middleware' => ['auth:api']], function() {
     //session
     Route::post('/session', [SessionController::class, 'store']);
     Route::get('/session', [FilmController::class, 'index']);
+    Route::get('/sessions', [SessionController::class, 'getByType']);
 });
