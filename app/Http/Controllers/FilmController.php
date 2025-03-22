@@ -16,6 +16,10 @@ class FilmController extends Controller
         $this->filmRepository = $filmRepository;
     }
 
+    public function index(){
+        return $this->filmRepository->getall();
+    }
+
     public function store(Request $request){
         $fields = $request->validate([
             'title' => 'required|string',
@@ -24,11 +28,9 @@ class FilmController extends Controller
             'duration' => 'required',
             'minimum_age' => 'required|integer',
             'trailer_url' => 'required|string',
-            'genre' => 'required|string',
-            'user_id' => 'integer'
+            'genre' => 'required|string'
         ]);
 
-        $fields['user_id'] = Auth::id();
         $user = Auth::user();
 
         if (!$user || !$user->is_admin) {
