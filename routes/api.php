@@ -29,7 +29,9 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/film', [FilmController::class, 'store']);
     Route::put('film/{id}', [FilmController::class, 'update']);
     Route::delete('film/{id}', [FilmController::class, 'destroy']);
+    Route::get('/film', [FilmController::class, 'index']);
 
     //session
     Route::post('/session', [SessionController::class, 'store']);
+    Route::get('/session', [FilmController::class, 'index']);
 });
