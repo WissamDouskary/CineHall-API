@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Film;
+use App\Models\Room;
+use App\Models\Reservation;
 
 class Session extends Model
 {
@@ -17,5 +20,10 @@ class Session extends Model
 
     public function room(){
         return $this->hasMany(Room::class);
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
     }
 }
