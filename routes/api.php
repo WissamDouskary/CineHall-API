@@ -5,7 +5,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FilmController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\ReservationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -35,4 +35,7 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/session', [SessionController::class, 'store']);
     Route::get('/session', [FilmController::class, 'index']);
     Route::get('/sessions', [SessionController::class, 'getByType']);
+
+    //reservation
+    Route::post('/reservations', [ReservationController::class, 'store']);
 });
