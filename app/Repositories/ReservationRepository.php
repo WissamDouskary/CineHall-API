@@ -13,6 +13,7 @@ class ReservationRepository implements ReservationRepositoryInterface
         $seat = Seat::findOrFail($seatId);
         $session = Session::findOrFail($sessionId);
 
+
         if ($seat->room_id !== $session->room_id) {
             return null;
         }
