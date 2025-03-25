@@ -5,6 +5,7 @@ use App\Models\Seat;
 use App\Models\Reservation;
 use App\Repositories\contract\ReservationRepositoryInterface;
 use App\Models\Session;
+use Carbon\Carbon;
 
 class ReservationRepository implements ReservationRepositoryInterface
 {
@@ -34,7 +35,8 @@ class ReservationRepository implements ReservationRepositoryInterface
             'user_id' => $userId,
             'session_id' => $sessionId,
             'seat_id' => $seatId,
-            'seats_count' => $seatsCount
+            'seats_count' => $seatsCount,
+            'created_at' => Carbon::now(),
         ]);
     }
 }
