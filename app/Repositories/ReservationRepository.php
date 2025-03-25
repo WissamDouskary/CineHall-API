@@ -46,4 +46,8 @@ class ReservationRepository implements ReservationRepositoryInterface
             'created_at' => Carbon::now(),
         ]);
     }
+    public function modify(int $reservationId, $data){
+        $reservation = Reservation::findOrFail($reservationId);
+        $reservation->update($data);
+    }
 }
