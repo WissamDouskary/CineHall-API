@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories;
+use App\Models\Room;
 use App\Models\Seat;
 use App\Models\Reservation;
 use App\Repositories\contract\ReservationRepositoryInterface;
@@ -20,6 +21,12 @@ class ReservationRepository implements ReservationRepositoryInterface
         }
 
         if ($session->type == 'VIP' && $seatsCount < 2){
+            return null;
+        }
+
+        $room = Room::findOrFail($session->room_id);
+
+        if(Reservation::where('seat_id', $seatId)->count() >= $room->capacity){
             return null;
         }
 
