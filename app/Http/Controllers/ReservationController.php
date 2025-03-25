@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\ReservationRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\contract\ReservationRepositoryInterface;
@@ -46,9 +47,22 @@ class ReservationController extends Controller
             }
         }
 
+        $this->checkExpiredReservations();
+
         return response()->json([
             'message' => !empty($reservations) > 0 ? 'reservation success' : 'reservation failed',
             'reserved_seats' => $reservations,
         ]);
+    }
+
+    public function checkExpiredReservations(){
+        $reservations = Reservation::where('status', 'waiting')
+            ->where('created_at', '<=', Carbon::now()->subMinutes(15))
+            ->get();
+
+        foreach ($reservations as $reservation) {
+            $reservation->status = 'cancelled';
+            $reservation->save();
+        }
     }
 }
