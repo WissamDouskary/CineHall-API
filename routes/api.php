@@ -41,6 +41,7 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     //room
     Route::post('/room', [RoomController::class, 'store']);
+    Route::get('/room', [RoomController::class, 'index']);
 
     //seats
     Route::post('/seats', [SeatController::class, 'store']);
