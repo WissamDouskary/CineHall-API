@@ -65,4 +65,32 @@ class ReservationController extends Controller
             $reservation->save();
         }
     }
+
+    public function update($id, Request $request)
+    {
+        $fields = $request->validate([
+            'session_id' => 'required|integer|exists:sessions,id',
+            'seat_id' => 'required|array',
+            'seat_id.*' => 'integer|exists:seats,id',
+        ]);
+
+        $user = Auth::user();
+        $reservation = Reservation::find($id);
+
+        if (!$reservation) {
+            return response()->json(["message" => "Reservation not found!"], 404);
+        }
+
+        if ($user->id !== $reservation->user_id) {
+            return response()->json(["message" => "You don't own this reservation!"], 403);
+        }
+
+        $reservation->session_id = $fields['session_id'];
+
+        $reservation->seat_id = $fields['seat_id'][0];
+
+        $reservation->save();
+
+        return response()->json(["message" => "Reservation updated!"]);
+    }
 }
