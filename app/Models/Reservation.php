@@ -22,8 +22,8 @@ class Reservation extends Model
         return $this->belongsTo(Session::class);
     }
 
-    public function seat()
+    public function seats()
     {
-        return $this->belongsTo(Seat::class);
+        return $this->belongsToMany(Seat::class);
     }
 }
