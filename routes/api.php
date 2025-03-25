@@ -48,5 +48,5 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     //reservation
     Route::post('/reservations', [ReservationController::class, 'store']);
-
+    Route::put('/reservations/{id}', [ReservationController::class, 'update']);
 });
