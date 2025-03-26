@@ -93,4 +93,19 @@ class ReservationController extends Controller
 
         return response()->json(["message" => "Reservation updated!"]);
     }
+
+    public function destroy($id){
+        $reservation = Reservation::findOrFail($id);
+        $user = Auth::user();
+        if($reservation->status == 'waiting' && $user->id == $reservation->user_id){
+            $this->reservationRepository->cancel($id);
+            return response()->json(["message" => "Reservation cancelled!"], 200);
+        }
+
+        if(empty($reservation)){
+            return response()->json(["message" => "Reservation not found!"], 404);
+        }
+
+        return response()->json(["message" => "You don't own this reservation!"], 403);
+    }
 }
