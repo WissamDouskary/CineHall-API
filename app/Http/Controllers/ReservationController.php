@@ -22,27 +22,49 @@ class ReservationController extends Controller
     {
         $fields = $request->validate([
             'session_id' => 'required|integer|exists:sessions,id',
+            'type' => 'required|string|in:couple,solo',
             'seats' => 'array|required',
             'seats.*' => 'integer|exists:seats,id'
         ]);
 
         $userId = Auth::id();
+        $sessionId = $fields['session_id'];
+        $seatsToReserve = [];
 
-        $reservedSeats = Reservation::where('session_id', $fields['session_id'])
-            ->whereIn('seat_id', $fields['seats'])
+        if ($fields['type'] == 'couple') {
+            foreach ($fields['seats'] as $seat) {
+                $secondSeat = $seat + 1;
+
+                $isSeatAvailable = !Reservation::where('session_id', $sessionId)
+                    ->where('seat_id', $secondSeat)
+                    ->exists();
+
+                if (!$isSeatAvailable) {
+                    return response()->json(['message' => "Seat $secondSeat is not available!"], 400);
+                }
+
+                $seatsToReserve[] = $seat;
+                $seatsToReserve[] = $secondSeat;
+            }
+        } else {
+            $seatsToReserve = $fields['seats'];
+        }
+
+        $reservedSeats = Reservation::where('session_id', $sessionId)
+            ->whereIn('seat_id', $seatsToReserve)
             ->pluck('seat_id')
             ->toArray();
 
-        $availableSeats = array_diff($fields['seats'], $reservedSeats);
+        $availableSeats = array_diff($seatsToReserve, $reservedSeats);
 
-        if(empty($availableSeats)){
-            return response()->json(['message' => 'you have choose a reserved seats!'], 400);
+        if (empty($availableSeats)) {
+            return response()->json(['message' => 'You have chosen reserved seats!'], 400);
         }
 
         $reservations = [];
-        foreach ($fields['seats'] as $seat) {
-            $reservation = $this->reservationRepository->reserveSeat($userId, $fields['session_id'], $seat, count($fields['seats']));
-            if($reservation){
+        foreach ($availableSeats as $seat) {
+            $reservation = $this->reservationRepository->reserveSeat($userId, $sessionId, $seat, count($availableSeats));
+            if ($reservation) {
                 $reservations[] = $reservation;
             }
         }
@@ -50,10 +72,11 @@ class ReservationController extends Controller
         $this->checkExpiredReservations();
 
         return response()->json([
-            'message' => !empty($reservations) > 0 ? 'reservation success' : 'reservation failed',
+            'message' => !empty($reservations) ? 'Reservation successful' : 'Reservation failed',
             'reserved_seats' => $reservations,
         ]);
     }
+
 
     public function checkExpiredReservations(){
         $reservations = Reservation::where('status', 'waiting')
