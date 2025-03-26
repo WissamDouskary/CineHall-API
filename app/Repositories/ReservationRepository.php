@@ -50,4 +50,9 @@ class ReservationRepository implements ReservationRepositoryInterface
         $reservation = Reservation::findOrFail($reservationId);
         $reservation->update($data);
     }
+
+    public function cancel(int $reservationId){
+        $reservation = Reservation::findOrFail($reservationId);
+        $reservation->delete();
+    }
 }
