@@ -21,6 +21,7 @@ class SeatController extends Controller
             'room_id' => 'required|exists:rooms,id',
             'seats' => 'required|array',
             'seats.*.seat_number' => 'required',
+            'seats.*.price' => 'integer|required',
         ]);
 
         $user = Auth::user();
@@ -31,16 +32,17 @@ class SeatController extends Controller
                 if($seatsexists){
                     return response()->json(["message" => "Seat already exists!"], 404);
                 }
+
                 $seat['room_id'] = $fields['room_id'];
 
                 $this->seatRepository->store($seat);
             }
             return response()->json([
-                'message' => 'Seats have been created to room id:' . $fields['room_id']
-            ]);
+                'message' => 'Seats have been created to room id: ' . $fields['room_id']
+            ], 201);
         }
         return response()->json([
             'message' => 'You do not have permission to create seats'
-        ]);
+        ], 403);
     }
 }
