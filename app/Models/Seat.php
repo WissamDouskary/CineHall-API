@@ -8,7 +8,7 @@ use App\Models\Room;
 
 class Seat extends Model
 {
-    protected $fillable = ['room_id', 'seat_number'];
+    protected $fillable = ['room_id', 'seat_number', 'price'];
 
     public function room()
     {
