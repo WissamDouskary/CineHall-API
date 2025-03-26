@@ -6,6 +6,7 @@ use App\Repositories\contract\SeatRepositoryInterface;
 use App\Repositories\SeatRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Seat;
 
 class SeatController extends Controller
 {
@@ -26,6 +27,10 @@ class SeatController extends Controller
 
         if($user->is_admin){
             foreach($fields['seats'] as $seat){
+                $seatsexists = Seat::where('seat_number', $seat['seat_number'])->exists();
+                if($seatsexists){
+                    return response()->json(["message" => "Seat already exists!"], 404);
+                }
                 $seat['room_id'] = $fields['room_id'];
 
                 $this->seatRepository->store($seat);
