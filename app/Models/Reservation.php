@@ -10,7 +10,7 @@ use App\Models\Seat;
 
 class Reservation extends Model
 {
-    protected $fillable = ['user_id', 'session_id', 'seat_id'];
+    protected $fillable = ['user_id', 'session_id', 'seat_id', 'type'];
 
     public function user()
     {
