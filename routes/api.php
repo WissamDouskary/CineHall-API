@@ -9,6 +9,7 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SeatController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,4 +59,9 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     //payment
     Route::post('/paypal/capture', [ReservationController::class, 'capture']);
+
+    //Dashboard
+    Route::get('/dashboard/overview', [DashboardController::class, 'getOverview']);
+    Route::get('/dashboard/occupation-rate', [DashboardController::class, 'getOccupationRate']);
+    Route::get('/dashboard/popular-films', [DashboardController::class, 'getPopularFilms']);
 });
