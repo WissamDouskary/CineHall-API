@@ -4,18 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Repositories\ReservationRepository;
 use Carbon\Carbon;
+use App\Services\PayPalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\contract\ReservationRepositoryInterface;
 use App\Models\Reservation;
+use App\Models\Seat;
 
 class ReservationController extends Controller
 {
     protected $reservationRepository;
+    private $paypalService;
 
-    public function __construct(ReservationRepositoryInterface $reservationRepository)
+    public function __construct(ReservationRepositoryInterface $reservationRepository, PayPalService $paypalService)
     {
         $this->reservationRepository = $reservationRepository;
+        $this->paypalService = $paypalService;
     }
 
     public function store(Request $request)
@@ -61,20 +65,60 @@ class ReservationController extends Controller
             return response()->json(['message' => 'You have chosen reserved seats!'], 400);
         }
 
-        $reservations = [];
-        foreach ($availableSeats as $seat) {
-            $reservation = $this->reservationRepository->reserveSeat($userId, $sessionId, $seat, count($availableSeats));
-            if ($reservation) {
-                $reservations[] = $reservation;
+        $seatPrices = Seat::whereIn('id', $availableSeats)->pluck('price', 'id')->toArray();
+
+        $totalAmount = array_sum($seatPrices);
+
+        // Créer la commande PayPal
+        $order = $this->paypalService->createOrder($totalAmount);
+
+        if (isset($order['id']) && isset($order['links'])) {
+            $paypalOrderId = $order['id']; // Sauvegarder l'ID de la commande PayPal
+
+            $reservations = [];
+            foreach ($availableSeats as $seat) {
+                $reservation = $this->reservationRepository->reserveSeat($userId, $sessionId, $seat, count($availableSeats));
+                if ($reservation) {
+                    $reservation->paypal_order_id = $paypalOrderId;
+                    $reservation->status = 'waiting';
+                    $reservation->save();
+                    $reservations[] = $reservation;
+                }
+            }
+
+            foreach ($order['links'] as $link) {
+                if ($link['rel'] === 'approve') {
+                    return response()->json([
+                        'message' => 'Reservation successful',
+                        'reserved_seats' => $availableSeats,
+                        'total_price' => $totalAmount,
+                        'payment_link' => $link['href'],
+                    ]);
+                }
             }
         }
-
-        $this->checkExpiredReservations();
 
         return response()->json([
             'message' => !empty($reservations) ? 'Reservation successful' : 'Reservation failed',
             'reserved_seats' => $reservations,
         ]);
+    }
+
+    public function capture(Request $request)
+    {
+        $orderId = $request->input('order_id');
+
+        if (!$orderId) {
+            return response()->json(['error' => 'Order ID is required'], 400);
+        }
+
+        $captureResponse = $this->paypalService->captureOrder($orderId);
+
+        if (isset($captureResponse['status']) && $captureResponse['status'] === 'COMPLETED') {
+            return response()->json(['message' => 'Payment successful', 'data' => $captureResponse]);
+        }
+
+        return response()->json(['error' => 'Payment capture failed', 'details' => $captureResponse], 400);
     }
 
 
