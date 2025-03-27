@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SeatController;
+use App\Http\Controllers\TicketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +24,9 @@ use App\Http\Controllers\SeatController;
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 
-Route::post('/paypal/capture', [ReservationController::class, 'capture']);
+
+//tickets
+Route::get('/tickets/{id}/download', [TicketController::class, 'downloadTicket']);
 
 Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/user/{id}', [UserController::class, 'update']);
@@ -52,4 +55,7 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/reservations', [ReservationController::class, 'store']);
     Route::put('/reservations/{id}', [ReservationController::class, 'update']);
     Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
+
+    //payment
+    Route::post('/paypal/capture', [ReservationController::class, 'capture']);
 });
