@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ticket;
 use App\Repositories\ReservationRepository;
 use Carbon\Carbon;
 use App\Services\PayPalService;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Repositories\contract\ReservationRepositoryInterface;
 use App\Models\Reservation;
 use App\Models\Seat;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ReservationController extends Controller
 {
@@ -69,11 +71,10 @@ class ReservationController extends Controller
 
         $totalAmount = array_sum($seatPrices);
 
-        // Créer la commande PayPal
         $order = $this->paypalService->createOrder($totalAmount);
 
         if (isset($order['id']) && isset($order['links'])) {
-            $paypalOrderId = $order['id']; // Sauvegarder l'ID de la commande PayPal
+            $paypalOrderId = $order['id'];
 
             $reservations = [];
             foreach ($availableSeats as $seat) {
@@ -117,7 +118,6 @@ class ReservationController extends Controller
         if (isset($captureResponse['status']) && $captureResponse['status'] === 'COMPLETED') {
             return response()->json(['message' => 'Payment successful', 'data' => $captureResponse]);
         }
-
         return response()->json(['error' => 'Payment capture failed', 'details' => $captureResponse], 400);
     }
 
