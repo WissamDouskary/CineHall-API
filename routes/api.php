@@ -23,6 +23,8 @@ use App\Http\Controllers\SeatController;
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 
+Route::post('/paypal/capture', [ReservationController::class, 'capture']);
+
 Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/user/{id}', [UserController::class, 'update']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
