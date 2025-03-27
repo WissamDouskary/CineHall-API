@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Ticket;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Illuminate\Support\Facades\Log;
 use App\Models\Reservation;
@@ -89,22 +90,19 @@ class PayPalService
             }
 
             $ticket->reservation_id = $reservation->id;
-            $ticket->start_date = $session->start_date;
-            $ticket->end_date = $session->end_date;
-            $ticket->seat = $reservation->seat;
+            $ticket->start_time = $session->start_date;
+            $ticket->end_time = $session->end_date;
+            $ticket->seat = $reservation->seat_id;
         } else {
-            return response()->json(
-                ['error' => 'session not found']
-                , 404);
+            return ['error' => 'Session not found'];
         }
 
-        $qrCode = QrCode::format('png')->size(200)->generate('http://127.0.0.1:8000/validate-ticket/' . $ticket->id);
+        $qrCode = QrCode::size(200)->generate('http://127.0.0.1:8000/validate-ticket/' . $ticket->id);
         $ticket->qr_code = base64_encode($qrCode);
 
         $ticket->save();
 
         return $ticket;
     }
-
 }
 
