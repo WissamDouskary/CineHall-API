@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Reservation;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\TicketController;
+use Illuminate\Support\Facades\Auth;
 
 class PayPalService
 {
@@ -80,6 +81,8 @@ class PayPalService
 
         $session = $reservation->session;
 
+        $user = Auth::user();
+
         if ($session) {
             $film = $session->film;
 
@@ -88,7 +91,7 @@ class PayPalService
             } else {
                 $ticket->film = 'Unknown Film';
             }
-
+            $ticket->user_id = Auth::id();
             $ticket->reservation_id = $reservation->id;
             $ticket->start_time = $session->start_date;
             $ticket->end_time = $session->end_date;
@@ -97,7 +100,7 @@ class PayPalService
             return ['error' => 'Session not found'];
         }
 
-        $qrCode = QrCode::size(200)->generate('http://127.0.0.1:8000/validate-ticket/' . $ticket->id);
+        $qrCode = QrCode::size(200)->generate('http://127.0.0.1:8000/validate-tickets/' . $ticket->id);
         $ticket->qr_code = base64_encode($qrCode);
 
         $ticket->save();
