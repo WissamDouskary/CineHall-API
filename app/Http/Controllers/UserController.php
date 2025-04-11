@@ -27,7 +27,8 @@ class UserController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => Auth::guard('api')->user()
+            'user' => Auth::guard('api')->user(),
+            'message' => 'you have signed up successfuly!'
         ], 201);
     }
 
@@ -45,7 +46,8 @@ class UserController extends Controller
 
             return response()->json([
                 'token' => $token,
-                'user' => Auth::guard('api')->user()
+                'user' => Auth::guard('api')->user(),
+                'message' => 'you have successfuly signed in!'
             ], 201);
         }
         return response()->json([
