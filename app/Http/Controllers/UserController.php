@@ -28,7 +28,11 @@ class UserController extends Controller
         return response()->json([
             'token' => $token,
             'user' => Auth::guard('api')->user(),
+<<<<<<< Updated upstream
             'message' => 'you have signed up successfuly!'
+=======
+            'message' => "you have sign up successfuly!"
+>>>>>>> Stashed changes
         ], 201);
     }
 
