@@ -12,19 +12,22 @@ use Illuminate\Support\Facades\Auth;
 class FilmController extends Controller
 {
     protected $filmRepository;
-    public function __construct(FilmRepositoryInterface $filmRepository) {
+    public function __construct(FilmRepositoryInterface $filmRepository)
+    {
         $this->filmRepository = $filmRepository;
     }
 
-    public function index(){
+    public function index()
+    {
         return $this->filmRepository->getall();
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $fields = $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
-            'image' => 'required|string|string',
+            'image' => 'required|image',
             'duration' => 'required',
             'minimum_age' => 'required|integer',
             'trailer_url' => 'required|string',
@@ -32,6 +35,8 @@ class FilmController extends Controller
         ]);
 
         $user = Auth::user();
+
+        $fields['image'] = $fields['image']->store('images', 'public');
 
         if (!$user || !$user->is_admin) {
             return response()->json(["message" => "You can't create a film!"], 401);
@@ -45,8 +50,9 @@ class FilmController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, int $id) {
-        if(Film::where('user_id', Auth::id())->where('id', $id)->exists()) {
+    public function update(Request $request, int $id)
+    {
+        if (Film::where('user_id', Auth::id())->where('id', $id)->exists()) {
             $this->filmRepository->update($request->all(), $id);
 
             return response()->json([
@@ -58,13 +64,24 @@ class FilmController extends Controller
         ]);
     }
 
-    public function destroy(int $id) {
+    public function destroy(int $id)
+    {
         $film = Film::find($id);
-        if($film->user_id == Auth::id()) {
+        if ($film->user_id == Auth::id()) {
             $this->filmRepository->destroy($id);
             return response()->json([
                 'message' => 'Film deleted!'
             ]);
         }
+    }
+
+    public function getfilmbyid($id)
+    {
+        $film = Film::with('session')->find($id);
+        
+        return response()->json([
+            'message' => 'Film founded!',
+            'film' => $film
+        ]);
     }
 }
